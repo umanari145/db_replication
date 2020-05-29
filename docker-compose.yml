@@ -1,0 +1,58 @@
+version: '3'
+services:
+  php7:
+    container_name: "php7"
+    build:
+        context: "./docker/php7"
+        dockerfile: "Dockerfile"
+    ports:
+        - "8080:80"
+    volumes:
+        - .:/var/www/html
+    networks:
+     - replication
+  master_db:
+    #dockerfileなくてもpullするだけだったら下記のコメントでもOK
+    #image: "mysql:latest"
+    container_name: "master_db"
+    ports:
+     - "3306:3306"
+    build:
+        context: "./docker/master_db"
+        dockerfile: "Dockerfile"
+    environment:
+      MYSQL_DATABASE: sample_master
+      MYSQL_USER: sample_user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+        # 永続化することでコンテナ削除してもOK
+        - "./docker/master_db/data:/var/lib/mysql"
+        # 初期データを投入するSQLが格納されているdir
+        - ./docker/master_db/init/:/docker-entrypoint-initdb.d/
+    networks:
+     - replication
+
+  slave_db:
+    container_name: "slave_db"
+    ports:
+     - "3306:3306"
+    build:
+        context: "./docker/slave_db"
+        dockerfile: "Dockerfile"
+    environment:
+      MYSQL_DATABASE: sample_slave
+      MYSQL_USER: sample_user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+        # 永続化することでコンテナ削除してもOK
+        - "./docker/slave_db/data:/var/lib/mysql"
+        # 初期データを投入するSQLが格納されているdir
+        - ./docker/slave_db/init/:/docker-entrypoint-initdb.d/
+    networks:
+     - replication
+
+networks:
+  replication:
+    driver: "bridge"
