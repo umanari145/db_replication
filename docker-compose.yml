@@ -36,7 +36,7 @@ services:
   slave_db:
     container_name: "slave_db"
     ports:
-     - "3306:3306"
+     - "33060:3306"
     build:
         context: "./docker/slave_db"
         dockerfile: "Dockerfile"

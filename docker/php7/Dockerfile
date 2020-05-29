@@ -4,8 +4,7 @@ RUN echo 'date.timezone = "Asia/Tokyo"' > /usr/local/etc/php/conf.d/timezone.ini
 RUN a2enmod rewrite
 
 RUN apt-get update && \
-    apt-get install -y libmcrypt-dev libonig-dev openssl git
-
+    apt-get install -y libmcrypt-dev libonig-dev openssl git iputils-ping net-tools
 RUN docker-php-ext-install pdo_mysql mysqli
 
 RUN pecl install mcrypt-1.0.3 && docker-php-ext-enable mcrypt
